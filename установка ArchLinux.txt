@@ -1,0 +1,384 @@
+Инструкция по установке и настройке Arch-Linux
+1. Скачать образ с сайта archlinux.org
+2. Записать на флешку образ, используя rufus
+3. Загрузиться с флешки
+4. Узнать как называется диск, куда будем ставить Линукс командой fdisk -l (обычно, /dev/sda)
+5. Разбиение диска командой cfdisk /dev/sda (DOS)
+    Создаем новые диски: Boot 200M (BIOS Boot), swap 2G (равен объему памяти, нужно поменять тип на swap);Root 30G, Home все остальное
+    Ставим флаг Bootable на Boot
+    Получилось /dev/sda1 - Boot; /dev/sda2 - swap; /dev/sda3 - Root; /dev/sda4 - Home
+    Записываем новую таблицу разделов
+6. Форматирование дисков
+    mkfs -t ext2 -L Boot /dev/sda1
+    mkfs -t ext4 -L Root /dev/sda3
+    mkfs -t ext4 -L Home /dev/sda4
+    mkswap /dev/sda2
+7. Монтирование дисков
+    mount /dev/sda3 /mnt
+    mkdir /mnt/{Boot,Home}
+    mount /dev/sda1 /mnt/Boot
+    mount /dev/sda4 /mnt/Home
+    swapon /dev/sda2
+8. Выбираем зеркало на yandex и выносим его вверх списка
+    vim /etc/pacman.d/mirrorlist
+    ? - поиск фразы
+    yy - команда копирует строчку
+    p - вставка строки
+9. Установка основной системы
+    pacstrap /mnt base base-devel
+10.Создание файла описания подключенных дисков
+    genfstab -U /mnt >> /mnt/etc/fstab
+11.Вход в систему
+    arch-chroot /mnt
+12.Установка vim и mc (текстовый редактор и файловый менеджер)
+    pacman -S vim mc
+13.Настройка времени
+    возможно, придется удалить уже существующую ссылку на localtime в папке /etc
+    ln -s /usr/share/zoneinfo/Asia/Yekaterinburg /etc/localtime
+    hwclock --systohc --localtime
+14. vim /etc/locale.gen // установка локали, язык интерфейса
+    раскоментировать LANG=ru_RU.UTF-8 UTF-8
+                     LANG=en_US.UTF-8 UTF-8
+    locale-gen
+    в файле /etc/locale.conf написать следующие строчки
+        LANG=ru_RU.UTF-8 // настройка локали
+        setxkbmap -layout us,ru -option grp:ctrl_shift_toggle
+        //установка языка по умолчанию "английский" и способ
+        //переключения языков ctrl+shift
+    в файле /etc/vconsole.conf написать следующие строчки
+        FONT=UniCyr_8x16
+15. Идентификация компьютера в сети
+    echo "comp_name" > /etc/hostname //назвали компьютер
+    в файле /etc/hosts вписать
+        127.0.0.1 comp_name.localdomain comp_name
+
+16. Пароли
+    passwd // задать пароль Root
+    useradd -m -g users -G audio,storage,wheel -s /bin/bash MYUSERNAME // добавили пользователя
+    passwd MYUSERNAME // задали пароль пользователя
+16. mkinitcpio -p linux //загрузочный файл. В новой версии требуется установить pacman -Syu linux linux-firmware
+17. Установка загрузчика
+    pacman -S grub //собственно загрузчик
+    grub-install /dev/sda //куда установить
+    grub-mkconfig -o /boot/grub/grub.cfg //сконфигурировали загрузчик
+18. Настройка сети
+	=========================
+    // VBOX Arch2020
+		(костыль)
+		>pacman -S networkmanager
+		на рабочий стол положить файл
+		======restart_network.sh===========
+		#!/bin/sh
+		systemctl restart NetworkManager
+		===================================
+		>chmod 777 restart_network.sh
+		запускать его мышкой
+	=========================
+	// железо
+	ip link покажет сетевые интерфейсы что-то вроде enp3s0
+    cp /etc/netctl/examples/ethernet-dhcp /etc/netctl/ethernet-dhcp
+    // скопировали файл
+    заменим имя интерфейса ethernet0 на наше
+    * если не запустится, делать тоже самое для статика,
+    редактировать под свою сеть параметры, они там стандартные
+    может быть придется делать ip link set enp3s0 down
+    netctl enable ethernet-dhcp //разрешили автозапуск
+	
+19. завершение первоначальной настройки
+    exit // вышли из рута, если запущен mc, сначала выйти из него
+    umount -R /mnt //размонтировали систему
+    reboot // перезагрузка
+После перезагрузки
+20. Войти пользователем, которого создали (пара логин-пароль)
+    su // ввести пароль рута
+Установка графического окружения
+21. Установка драйвера видеокарты
+    pacman -Syu // обновить систему
+    pacman -S xf86-video-vesa // простой видеодрайвер
+    * если есть какие-либо видеокарты из списка устанавливать соответственно:
+        xf86-video-amdgpu //AMD
+        xf86-video-ati //ATI
+        xf86-video-intel //intel
+        xf86-video-nouveau //NVIDIA
+        nvidia //NVIDIA
+22. pacman -S xorg-server xorg-apps // установка иксов
+    можно выбрать все
+    также можно выбрать библиотеку для OpenGL по умолчанию
+    и библиотек4у для работы с устройствами ввода/вывода
+23. Xorg :0 -configure
+    cp /root/xorg.conf.new /etc/X11/xorg.conf
+    // создали файл графического окружения, в нем можно
+    // менять разрешение экрана, например
+24. Установка графического менеджера
+    pacman -S xfce4 xfce4-goodies sddm xxkb
+    systemctl enable sddm.service // автозапуск менеджера
+    pacman -S ttf-liberation ttf-dejavu opendesktop-fonts ttf-bitstream-vera ttf-arphic-ukai ttf-arphic-uming ttf-hanazono
+    // установка шрифтов
+reboot //Перезагрузка и проверка графического окружения
+
+25. Установка утилит
+    в консоли выполнить su // получить рута
+    pacman -S p7zip unrar xarchiver // архиваторы
+    pacman -S udiskie // монтирование флешек
+    pacman -S gparted // редактор разделов диска
+    pacman -S firefox // браузер
+    timedatectl set-ntp 1 // разрешить синхронизацию времени если время неправильное
+26. Минимальная настройка
+    Приложения->Настройки->Терминал XFce->Дополнительно
+        отключить быстрые клавиши F1, F10
+    mc F9 -> Настройка -> конфигурация -> снять галки с встроенного редактора/просмотрщика
+    в файле .bashrc добавить строчку
+        export EDITOR=/usr/bin/vim //тот редактор, который хотим
+    Приложения->Настройка-> Сеансы и запуск -> Автозапуск-> добавить /bin udiskie
+======================FAQ=================================
+su // предоставить права суперпользователя
+mc // двухпанельный файловый менеджер
+chmod +x ИМЯ_ФАЙЛА // разрешить выполнение, соответственно +-w,+-r, 777 - все что угодно
+chown -R * user //рекурсивно сменить владельца в каталоге,
+    // будь внимателен, начиная с текущего! даже если это рут
+./файл // запуск файла
+pacman -Qe команда вывода версий установленных продуктов
+dmesg | grep Linux
+Автозапуск приложения: Приложения->Настройка-> Сеансы и запуск -> Автозапуск-> добавить "путь к приложению"
+    ===VIM===
+    /фраза_для поиска // поиск
+    /Enter // продолжить поиск вперед
+    ?Enter // поиск назад
+    
+    yy //скопировать строчку
+    y$ // скопировать до конца строки
+    yW // скопировать слово
+    p // вставить
+    
+    i // режим вставки
+    esc // выйти из режима вставки
+    
+    :q // выйти
+    :wq // выйти с записью
+    :q! // выйти без записи
+    
+    1234G // перейти на строку 1234
+=============================================================
+настройка сети под любой сетевой интерфейс (но только одну, для нескольких не проверялось)
+
+создать файл /etc/netctl/interfaces/any
+
+#!/bin/bash
+for interface in /sys/class/net/en*; do
+        break;
+done
+Interface=$(basename $interface)
+echo "en-any: using interface $Interface";
+
+# -------------- конец файла ---------------
+
+Разрешить ему право на исполнение из под рута
+chmod 555 any
+
+в файле /etc/netctl/ethernet-static или dhcp
+поменять имя интерфейса на any, т.е.
+Interface=any
+
+Скрипт для автозапуска сети (на примере ethernet-static)
+#!/bin/sh
+netctl start ethernet-static
+#---------------- конец файла ---------------
+для возможности запуска netctl без пароля в файле политик
+	(у него может быть другое имя) добавить строки
+
+/etc/polkit-1/rules.d/49-nopasswd_limited.rules
+#------------------ начало файла ------------
+/* Allow members of the wheel group to execute the defined actions 
+ * without password authentication, similar to "sudo NOPASSWD:"
+ */
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.freedesktop.systemd1.manage-units") &&
+        subject.isInGroup("wheel"))
+    {
+        return polkit.Result.YES;
+    }
+});
+# !!!!!!!!!!!!! однако это создает уязвимость !!!!!!!!!!!!!!
+===================================================================
+journalctl -ek // последние сообщения ядра
+journalctl -S "2019-01-20" -U "2019-02-21"
+journalctl -S "2019-01-20" -U "2019-02-21"
+==========================autologin=================================
+из под рута
+touch /etc/sddm.conf
+в файле написать следующее для пользователя USERNAME
+[Autologin]
+User=USERNAME
+Session=xfce.desktop
+==========================автозапуск=================================
+из под рута
+vim /etc/systemd/system/rc-local.service
+===========в нем вписать==============================================
+[Unit]
+Description=/etc/rc.local Compatibility
+ConditionPathExists=/etc/rc.local
+ 
+[Service]
+Type=forking
+ExecStart=/etc/rc.local start
+TimeoutSec=0
+StandardOutput=tty
+RemainAfterExit=yes
+SysVStartPriority=99
+ 
+[Install]
+WantedBy=multi-user.target
+======================================================================
+touch /etc/rc.local
+chmod +x /etc/rc.local
+systemctl enable rc-local.service
+====================в нем вписать=====================================
+#!/bin/sh -e
+ЛЮБЫЕ КОМАНДЫ ДЛЯ ЗАПУСКА ПРИЛОЖЕНИЯ ИЗ ПОД РУТА
+exit 0
+======================================================================
+Настройка общих папок для VirtualBox
+======================================================================
+	перед созданием общих папок необходимо сделать доступной папку media, куда монтируются все нужные диски.
+	из под root
+		chmod 777 /media
+	далее по шагам:
+	установить необходимые дополнения vbox:
+		pacman -Syu virtualbox-guest-modules-arch virtualbox-guest-utils
+	создать файл командой
+		vim /etc/modules-load.d/virtualbox.conf
+	====в нем следующие строчки=============================
+	vboxguest
+	vboxsf
+	vboxvideo
+	========================================================
+	автозапуск сервисов vbox
+		systemctl enable vboxservice
+	добавить пользователя USER в группу vboxsf
+		gpasswd -a USER vboxsf
+	далее выключить гостевую систему.
+	создать общую папку в интерфейсе VirtualBox:
+		в окне выбора гостевой системы, справа выбрать общие папки, добавить (+), назначить имя и путь, поставить галочки на "сделать автозагрузку" и "постоянную папку"
+	загрузить систему, папки появятся в файловом менеджере
+	
+=================================================================================
+Настройка ssh
+	pacman -Syu openssh
+в /etc/openssh/sshd_config
+раскоментировать строки:
+Port 22
+PermitRootLogin yes
+PasswordAutenthication yes
+PermitTTY yes
+==================================================================================
+	systemctl start sshd
+	systemctl status sshd // если зеленый активный статус, то все хорошо
+						  // если красный, возможно нужно обновить ssl
+	systemctl enable sshd
+==================================================================================
+далее через PuTTY указать адрес linux-машины и порт 22
+для копирования файлов из под Windows использовать следующие команды:
+download
+C:\Program Files\PuTTY>pscp.exe "D:\install\file.tar.gz" root@11.22.33.44:/home/user
+upload
+C:\Program Files\PuTTY>pscp.exe root@11.22.33.44:/home/user/file.tar.gz "D:\install"
+===================================================================================
+++++++++++Настройка SSH для VM++++++++++
+1. создать виртуальное соединение для VM:
+	выключить машину
+	Сеть > Адаптер2 > включить > Виртуальный адаптер хоста > VirtualBox Host...
+	Сеть > Адаптер 1 > проброс портов > + > Имя: SSH > Адрес хоста: 10.40.97.109 >
+		Порт хоста: 22 >	Адрес гостя: 10.0.2.15 > Порт гостя: 22
+	// примечание: адреса сетей можно посмотреть в Linux: ip a;
+		в Windows: ipconfig /all
+	в некторых версиях нужно порт хоста поменять на другой
+2. Настройка в гостевой машине
+	включить машину
+	скопировать два файла в папку /etc/netctl из вложенной папки examples
+		ethernet-dhcp и ethernet-static
+	имена интерфейсов посмотрим командой: ip a
+	dhcp будет для доступа в интернет, мы в нем только имя интерфейса укажем, например enp0s3
+	=================================
+	Description='ToInternet'
+	Interface=en
+	Connection=ethernet
+	IP=dhcp
+	
+	остальные строки закоментируем #
+	================================
+	static будет для связи с хостом, здесь указываем следующее:
+	=================================
+	Description='ToHost'
+	Interface=enp0s8
+	Connection=ethernet
+	IP=static
+	Address=('10.40.97.109')
+	остальные строки закоментируем #
+	================================
+3. Запуск службы
+	netctl disable ethernet-static 	# затрем предыдущие настройки
+	netctl disable ethernet-dhcp	# 
+	netctl enable ethernet-static	# запустим с новыми настройками
+	netctl enable ethernet-dhcp		#
+	reboot							# перезагрузка
+4. Настройка SSH см. выше
+5. В mc может быть неудачное отображение псевдо-графики,
+	тогда в настройках PuTTY выполнить следующее
+	Terminal > Keyboard > "The Function keys and keypad" = linux
+	Window > Translation > Character set - выставляем правильную кодировку
+	Connection > Data > "Terminal-type string" пишем linux
+===========================================================================
+Установка Petalinux
+скачать с Xilinx petalinux-tools_2015.2.1.run // ну или что-то подобное из архива, перед этим зарегистрироваться
+установить petalinux
+	./Xilinx petalinux-tools_2015.2.1.run /home/username/Xilinx
+	перенести папку с petalinux в /opt/petalinux
+	
+
+сборка ядра:
+	petalinux-build -c u-boot
+		Ошибка отсутствует zynq-fsbl.elf
+		найти и положить, куда просит
+	petalinux-build -c kernel
+		Ошибка multiple definition...
+		в файле dtc-lexer...c
+		добавить extern перед int YYLTYPE
+	petalinux-build -c rootfs
+		petalinux-build -c rootfs/libboost
+		требуется скачать исходники zlib и собрать их с Arm
+			cross-compile.sh
+			#!/bin/sh
+			==============
+			export CC="arm-unknown-linux-gnueabi-gcc"
+			export CPP="arm-unknown-linux-gnueabi-gcc -E"
+			export AR="arm-unknown-linux-gnueabi-ar"
+			./configure --prefix=$HOME/programs/newArm2/compiled/zlib
+			make
+			make install
+			==============
+			в папку пути библиотек компилятора arm /opt/petalinux/tools/linux-i386/arm-xilinx-linux-gnueab-gcc/lib/gcc/arm-xilinx-linux-gnueabi/4.9.1/
+			сложить ссылку libbz2.a на libz.a
+			указать во флагах (BOOST_FLAGS в файле crossbuild-settings,sh)ключ -sZLIB_SOURCE=/путь/к/распакованному/тарболу
+		
+		petalinux-build -c rootfs/libwt
+		редактировать Xilinx.toolchain.cmake файл (поменять FIND_ROOT_PATH на папку с собранными библиотеками BOOST: /lib и /include)
+		
+	
+===========================================================================
+Загрузочная флешка
+===========================================================================
+1. Разбить флешку на два раздела в gparted: BOOT (100Мб) fat16, ROOTFS(все остальное) ext4
+2. Поставить на BOOT метку "загрузочный раздел"
+3. из под root запустить в консоли nautilus
+	по правой кнопке последовательно на BOOT,ROOTFS во вкладке "Права" сменить владельца и права на текущего пользователя
+	fdisk -l узнать имена флешек (/dev/sdc1, к примеру)
+	в консоли в mc открыть файл /etc/fstab, найти в нем строчку с /dev/sdc1 и указать требуемую точку автомонтирования
+4. запустить update-sdcard.sh
+В rootfs распаковывается rootfs.cpio
+	cpio -idv < /home/dir/rootfs.cpio
+
+windows
+	diskpart
+		>list disk
+//VBoxManage clonehd your-virtualbox-disk.vmdk disk.vdi  --format RAW
+VBoxManage clonehd disk.vdi disk.img
