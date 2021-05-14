@@ -1,3 +1,7 @@
+"""
+python fantasy on CS50 problem set (taken from /davidventuri/harvard-cs50)
+set #1 mario tower
+"""
 def draw_line(i, n):
 	spcs = n - i
 	print(spcs*' ', end = '')
