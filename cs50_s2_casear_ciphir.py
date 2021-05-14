@@ -1,6 +1,5 @@
 """
-Casear ciphir and 
-TODO: shift cipher
+Casear and vigenere ciphir
 """
 import sys
 A = ord('A'); Z = ord('Z')
@@ -45,20 +44,22 @@ def csr_dec(line, k):
 	return dec_line
 	
 message = "\t Be sure to drink your Ovaltine!"
-agressive_msg = "Arghhh! Enter a message, you, dirty bastard!"
+
 if len(sys.argv) == 2:
 	user_msg = sys.argv[1]
 elif sys.argv[0][-3:] == '.py':
 	user_msg = input("Input a message: ")
 else:
-	print(agressive_msg)
 	user_msg = input("Input a message: ")
 	
-
-key_phrase = "Fear"
-k = []
-for i in key_phrase:
-	k.append()
+Ces_or_Ven = 'ven' # "ces" if you want to use cesar ciphir 
+if Ces_or_Ven == 'ven':
+	key_phrase = "Fear"
+	k = []
+	for i in key_phrase:
+		k.append(ord(i))
+elif Ces_or_Ven == 'ces':
+	k = 13
 enc_msg =csr_enc(user_msg, k)
 dec_msg =csr_dec(enc_msg, k)
 print('\t', enc_msg)
