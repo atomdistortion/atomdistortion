@@ -1,5 +1,5 @@
 """
-Casear and vigenere ciphir
+Caesar and vigenere cipher
 """
 import sys
 A = ord('A'); Z = ord('Z')
@@ -52,7 +52,7 @@ elif sys.argv[0][-3:] == '.py':
 else:
 	user_msg = input("Input a message: ")
 	
-Ces_or_Ven = 'ven' # "ces" if you want to use cesar ciphir 
+Ces_or_Ven = 'ven' # "ces" if you want to use caesar cipher 
 if Ces_or_Ven == 'ven':
 	key_phrase = "Fear"
 	k = []
