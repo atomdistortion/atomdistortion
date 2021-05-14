@@ -1,3 +1,7 @@
+"""
+python fantasy on CS50 problem set (taken from /davidventuri/harvard-cs50)
+set #2 to upper case
+"""
 prompt = input("please, enter your name: ")
 def first_letters(prompt):
 	arr = prompt.split(sep = ' ')
