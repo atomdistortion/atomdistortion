@@ -1,3 +1,7 @@
+"""
+python fantasy on CS50 problem set (taken from /davidventuri/harvard-cs50)
+set #1 simple greedy algorithm (not optimized, it is not required there)
+"""
 CENTS = [1, 5, 10, 25, 50]
 DOLLARS = [1, 5, 10, 25, 50, 100, 500, 1000]		
 def find_min_ind_ge(money, coin_set):
