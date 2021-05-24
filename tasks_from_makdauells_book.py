@@ -22,3 +22,16 @@ def once_symb(line):
 print(once_symb("Mamanak"))
 print(once_symb("Martnds"))
 
+#%% Все ли символы в строке встречаются один раз если разрешено использовать только строки
+def once_symb_str(line):
+    uniq_line = ""
+    flag = "True"
+    for symb in line:
+        if not symb in uniq_line:
+            uniq_line += symb
+        else:
+            return "False"
+    return flag
+
+print(once_symb_str("Mamanak"))
+print(once_symb_str("Martnds"))
