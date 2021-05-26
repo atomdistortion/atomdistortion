@@ -44,7 +44,7 @@ class my_str_class():
 		self.ind = 0
 		self.flag = True
 
-	def symb_inplace(self):
+	def __symb_inplace(self):
 		ind = self.ind
 		self.value = self.value[:ind] +'%20' + self.value[ind+1:]
 		return self
@@ -56,7 +56,7 @@ class my_str_class():
 			for i, s in enumerate(self.value):
 				if s == " ":
 					self.ind = i
-					self.symb_inplace()
+					self.__symb_inplace()
 					break
 				if i == len(self.value) - 1:
 					self.flag = False
