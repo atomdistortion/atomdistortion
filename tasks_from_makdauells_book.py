@@ -36,6 +36,25 @@ def once_symb_str(line):
 print(once_symb_str("Mamanak"))
 print(once_symb_str("Martnds"))
 
+# %% Является ли строка перестановкой другой Q1.2 (метод)
+class my_comparation():
+	def __init__(self, value):
+		self.value = ''.join(sorted(value))
+
+	def comb_test(self, other):
+		if len(self.value) != len(other.value):
+			return False
+		else:
+			for i in range(len(self.value)):
+				if self.value[i] != other.value[i]:
+					return False
+			return True
+#%% тест задания
+lin1 = my_comparation("dgvjkvgdg")
+lin2 = my_comparation("vdgjkvgdg")
+lin3 = my_comparation("ghv")
+print(lin1.comb_test(lin3))
+print(lin1.comb_test(lin2))
 
 # %% Замена пробелов на %20 задание Q1.3 (метод inplace)
 class my_str_class():
