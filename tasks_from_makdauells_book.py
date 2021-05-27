@@ -1,5 +1,7 @@
-# мой вариант решения заданий из книги "Карьера программиста" Г.Л. Макдауэлл
-# %% Все ли символы в строке встречаются один раз Q1.1 (без ограничений)
+"""
+мой вариант решения заданий из книги "Карьера программиста" Г.Л. Макдауэлл
+Все ли символы в строке встречаются один раз Q1.1 (без ограничений)
+"""
 def ind_find(set_line, symb):
     for i,s in enumerate(set_line):
         if s == symb:
@@ -18,11 +20,13 @@ def once_symb(line):
     else:
         flag = 0
     return flag
-
+#%% тест задания
 print(once_symb("Mamanak"))
 print(once_symb("Martnds"))
 
-#%% Все ли символы в строке встречаются один раз если разрешено использовать только строки
+"""
+Все ли символы в строке встречаются один раз если разрешено использовать только строки Q1.1 (с ограничением)
+"""
 def once_symb_str(line):
     uniq_line = ""
     flag = "True"
@@ -36,7 +40,9 @@ def once_symb_str(line):
 print(once_symb_str("Mamanak"))
 print(once_symb_str("Martnds"))
 
-# %% Является ли строка перестановкой другой Q1.2 (метод)
+"""
+Является ли строка перестановкой другой Q1.2 (метод)
+"""
 class my_comparation():
 	def __init__(self, value):
 		self.value = ''.join(sorted(value))
@@ -56,7 +62,9 @@ lin3 = my_comparation("ghv")
 print(lin1.comb_test(lin3))
 print(lin1.comb_test(lin2))
 
-# %% Замена пробелов на %20 задание Q1.3 (метод inplace)
+"""
+Замена пробелов на %20 задание Q1.3 (метод inplace)
+"""
 class my_str_class():
 	def __init__(self, value):
 		self.value = value
@@ -81,13 +89,15 @@ class my_str_class():
 					self.flag = False
 					break
 		return self
-#%%
+#%% тест задания
 str_greet = 'Hello to you, young Padavan!'
 g = my_str_class(str_greet)
 g.line_inplace()
 print(g.value)
 
-#%% Проверка, является ли слово палиндромом задание Q1.4
+"""
+Проверка, является ли слово палиндромом задание Q1.4
+"""
 def palindrom(line):
 	uniq = list(set(line))
 	uniq.sort()
@@ -102,3 +112,46 @@ def palindrom(line):
 line_test = "helleh"
 line = "hello fllo"
 print(palindrom(line))
+
+"""
+Находится ли слово на расстоянии одной модификации. Задание Q1.5
+"""
+#%% вставка символа
+def insert_mod(line, mod_line):
+	if len(line) + 1 != len(mod_line):
+		return False
+	counter = 0
+	for i in range(len(line)):
+		if line[i] != mod_line[i+counter]:
+			counter +=1
+			if counter > 1:
+				return False
+	return True
+
+#%% удаление символа
+def remove_mod(line, mod_line):
+	return insert_mod(mod_line, line)
+#%% замена символа
+def change_mod(line, mod_line):
+	counter = 0
+	if len(line) != len(mod_line):
+		return False
+	for s, s_m in zip(line, mod_line):
+		if s != s_m:
+			counter += 1
+	if counter < 2:
+		return True
+	else:
+		return False
+# проверка одна модификация или нет модификации
+def one_mod(line, mod_line):
+	if line == mod_line:
+		return True
+	else:
+		return insert_mod(line, mod_line) | remove_mod(line, mod_line) | change_mod(line, mod_line)
+#%% Тест
+line_test = "heleh"
+line_test1 = "helelh"
+line_test2 = "helegh"
+line_test3 = "gnae"
+print(one_mod(line_test1, line_test3))
