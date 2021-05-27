@@ -86,3 +86,19 @@ str_greet = 'Hello to you, young Padavan!'
 g = my_str_class(str_greet)
 g.line_inplace()
 print(g.value)
+
+#%% Проверка, является ли слово палиндромом задание Q1.4
+def palindrom(line):
+	uniq = list(set(line))
+	uniq.sort()
+	S = []
+	for s in uniq:
+		S.append(line.count(s))
+		even = list(filter(lambda n: n%2, S))
+	if (len(even) == 1 and sum(S) % 2) or (len(even) == 0 and not sum(S) % 2):
+		return True
+	else:
+		return False
+line_test = "helleh"
+line = "hello fllo"
+print(palindrom(line))
