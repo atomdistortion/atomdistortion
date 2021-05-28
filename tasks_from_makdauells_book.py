@@ -158,3 +158,31 @@ line_test1 = "helelh"
 line_test2 = "helegh"
 line_test3 = "gnae"
 print(one_mod(line_test1, line_test3))
+"""
+Сжатие строк задание Q1.6
+"""
+def count_same(line, ind):
+	counter = 0
+	while ind < len(line) - 1 and line[ind] == line[ind + 1]:
+		counter += 1
+		ind += 1
+	if counter != 0:
+		return [line[ind - 1] + str(counter + 1), ind + 1]
+	else:
+		return [line[ind], ind +1]
+
+def strip_line(line):
+	if len(line) < 2:
+		return line
+	ind = 0
+	new_line = ""
+	while ind < len(line) - 1:
+		s, ind = count_same(line, ind)
+		new_line +=s
+	if line[-1] != line[-2]:
+		new_line += line[-1]
+	return new_line
+#%% тестирование
+line = "caaafffghhhhfg"
+line1 = "a"
+print(strip_line(line))
