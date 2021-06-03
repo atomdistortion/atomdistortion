@@ -234,3 +234,42 @@ print(m_obj.matrix)
 R = m_obj.simple_rot90()# вращение
 m_obj.inplace_rot90()# вращение на месте
 print(m_obj.matrix)
+
+"""
+если элемент равен 0, то обнуляется весь столбец и строка
+задание Q1.8
+"""
+from random import random
+from copy import deepcopy
+N = 15; M = 10
+A = []
+def gen_matrix(N,M, sparce=5):# случайная матрица c ~5% нулей по-умолчанию
+	for _ in range(N):
+		A.append([(lambda _: random() if random() >= sparce/100 else 0)(_) for _ in range(M)])
+	return A
+def read_zeros(A):# читаем столбцы и строки, в которых есть нулевые элементы
+	zeros_list = []
+	zeros_col = []; zeros_row = []
+	for i in range(N):
+		for j in range(M):
+			if A[i][j] == 0:
+				zeros_list.append((i, j))
+				zeros_col.append(j); zeros_row.append(i)
+
+	zeros_col = list(set(zeros_col))# уменьшим количество повторений
+	zeros_row = list(set(zeros_row))#
+	return [zeros_col, zeros_row]
+
+def m_zeros(F):# нули в строках и столбцах
+	zeros_col, zeros_row = read_zeros(F)
+	for row in range(N):
+		if row in zeros_row:
+			F[row][:] = [0] * M
+		for col in range(M):
+			if col in zeros_col:
+				F[row][col] = 0
+	return F
+#%% тест
+A = gen_matrix(N, M)# создадим случайную матрицу с нулями
+F = deepcopy(A) # копия матрицы
+F = m_zeros(F) # записали нули в строках и столбцах
