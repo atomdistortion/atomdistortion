@@ -186,3 +186,45 @@ def strip_line(line):
 line = "caaafffghhhhfg"
 line1 = "a"
 print(strip_line(line))
+
+"""
+Поворот изображения на 90 градусов (в том числе на месте)
+каждый пиксель 4 байта (пиксели оформим в виде кортежа из 4х чисел)
+Задание Q1.7
+"""
+
+#%% синтез простой тестовой матрицы, элементы сгруппированы
+# по 4 элемента (кортеж, представляющий собой пиксель)
+# матрица квадратная N x N
+def make_cell(i): # пиксель
+	return tuple(range(i,i + 4))
+def make_line(i, N):# строка
+	return [make_cell(i + 4*x) for x in range(N)]
+def make_simple_matrix(N):# матрица
+	return [make_line(i + (4*N - 1) * i, N) for i in range(N)]
+#%% тестовая матрица
+N = 7
+M = make_simple_matrix(N)
+#%% пустая матрица
+def make_empty(N):# выделили память для матрицы	
+	return [[0]*N for _ in range(N)]
+#%%
+def simple_rot90(M):# вращение матрицы на 90 градусов
+	N = len(M)
+	R=make_empty(N)# выделили память для матрицы
+	for i in range(N):
+		for j in range(N):
+			R[i][j]=M[N-1 - j][i]
+	return R
+R = simple_rot90(M)
+#%%
+def inplace_rot90(M):
+	N = len(M)
+	for i in range(N//2):# строка
+		for j in range(N//2 + N%2):# столбец
+			M[i][j], M[j][N-1 - i]  = M[j][N-1 - i], M[i][j]
+			M[N-1 - j][i], M[i][j] = M[i][j], M[N-1 - j][i]
+			M[N-1 - j][i], M[N-1 - i][N-1 - j]  = M[N-1 - i][N-1 - j], M[N-1 - j][i]
+	return M
+
+R1 = inplace_rot90(M)
