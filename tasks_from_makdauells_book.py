@@ -190,41 +190,47 @@ print(strip_line(line))
 """
 Поворот изображения на 90 градусов (в том числе на месте)
 каждый пиксель 4 байта (пиксели оформим в виде кортежа из 4х чисел)
-Задание Q1.7
+Задание Q1.7 (оформление в виде метода)
 """
+class my_methods_collection():
+	def __init__(self, N = 5):
+		self.matrix=my_methods_collection.make_simple_matrix(N)
+	def inplace_rot90(self):
+		N = len(self.matrix)
+		for i in range(N//2):# строка
+			for j in range(N//2 + N%2):# столбец
+				self.matrix[i][j], self.matrix[j][N-1 - i]  = self.matrix[j][N-1 - i], self.matrix[i][j]
+				self.matrix[N-1 - j][i], self.matrix[i][j] = self.matrix[i][j], self.matrix[N-1 - j][i]
+				self.matrix[N-1 - j][i], self.matrix[N-1 - i][N-1 - j]  = self.matrix[N-1 - i][N-1 - j], self.matrix[N-1 - j][i]
 
-#%% синтез простой тестовой матрицы, элементы сгруппированы
-# по 4 элемента (кортеж, представляющий собой пиксель)
-# матрица квадратная N x N
-def make_cell(i): # пиксель
-	return tuple(range(i,i + 4))
-def make_line(i, N):# строка
-	return [make_cell(i + 4*x) for x in range(N)]
-def make_simple_matrix(N):# матрица
-	return [make_line(i + (4*N - 1) * i, N) for i in range(N)]
-#%% тестовая матрица
-N = 7
-M = make_simple_matrix(N)
-#%% пустая матрица
-def make_empty(N):# выделили память для матрицы	
-	return [[0]*N for _ in range(N)]
-#%%
-def simple_rot90(M):# вращение матрицы на 90 градусов
-	N = len(M)
-	R=make_empty(N)# выделили память для матрицы
-	for i in range(N):
-		for j in range(N):
-			R[i][j]=M[N-1 - j][i]
-	return R
-R = simple_rot90(M)
-#%%
-def inplace_rot90(M):
-	N = len(M)
-	for i in range(N//2):# строка
-		for j in range(N//2 + N%2):# столбец
-			M[i][j], M[j][N-1 - i]  = M[j][N-1 - i], M[i][j]
-			M[N-1 - j][i], M[i][j] = M[i][j], M[N-1 - j][i]
-			M[N-1 - j][i], M[N-1 - i][N-1 - j]  = M[N-1 - i][N-1 - j], M[N-1 - j][i]
-	return M
-
-R1 = inplace_rot90(M)
+	def simple_rot90(self):# вращение матрицы на 90 градусов
+		M = self.matrix
+		N = len(M)
+		R=my_methods_collection.make_empty(N)# выделили память для матрицы
+		for i in range(N):
+			for j in range(N):
+				R[i][j]=M[N-1 - j][i]
+		return R
+	@staticmethod
+	#%% синтез простой тестовой матрицы, элементы сгруппированы
+	# по 4 элемента (кортеж, представляющий собой пиксель)
+	# матрица квадратная N x N
+	def make_cell(i): # пиксель
+		return tuple(range(i,i + 4))
+	@staticmethod
+	def make_line(i, N):# строка
+		return [my_methods_collection.make_cell(i + 4*x) for x in range(N)]	
+	@staticmethod
+	def make_simple_matrix(N):# матрица
+		return [my_methods_collection.make_line(i + (4*N - 1) * i, N) for i in range(N)]
+	@staticmethod
+	def make_empty(N):# выделили память для матрицы	
+		return [[0]*N for _ in range(N)]
+	
+#%% тест
+N = 7 # размер матрицы
+m_obj = my_methods_collection(N)# создали объект класса
+print(m_obj.matrix)
+R = m_obj.simple_rot90()# вращение
+m_obj.inplace_rot90()# вращение на месте
+print(m_obj.matrix)
