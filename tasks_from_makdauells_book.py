@@ -273,3 +273,24 @@ def m_zeros(F):# нули в строках и столбцах
 A = gen_matrix(N, M)# создадим случайную матрицу с нулями
 F = deepcopy(A) # копия матрицы
 F = m_zeros(F) # записали нули в строках и столбцах
+"""
+функция, которая ищет подстроку в строке. Задание Q1.9
+"""
+class my_func_collection():
+	@staticmethod
+	def subStrFind(line1, line2):
+		len1 = len(line1); len2 = len(line2)
+		for i in range(len2):
+			if len1 <= len2 - i:
+				if line1 == line2[i:i + len1]:
+					return True
+			else:
+				dist = len2 - i
+				if line1 == line2[i:] + line2[:len1 - dist]:
+					return True
+		return False
+# тест
+line1 = "abcd"
+line2 = "dcfgjabc"
+g = my_func_collection.subStrFind(line1, line2)
+print(g)
